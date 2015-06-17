@@ -1,5 +1,5 @@
 (function(){
-    var firebase = new Firebase("https://sweltering-fire-6972.firebaseio.com");
+    var firebase = new Firebase("https://ibochy.firebaseio.com");
 
     var editor = new Editor();
 
