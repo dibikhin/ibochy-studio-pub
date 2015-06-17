@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script src="https://cdn.firebase.com/js/client/2.2.6/firebase.js"></script>
+
+    <title>Page Title</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <h2>Users</h2>
+    <p id="fedor"></p>
+    <p id="mariya"></p>
+    <p id="stiv"></p>
+
+    <h2>Rules</h2>
+
+    <script>
+        var fillAuthors = function(error, authData) {
+            ref.child('authors').once("value", function(snap) {
+                $("#authors").text(JSON.stringify(snap.val()));
+            });
+        };
+        var fillSites = function(error, authData) {
+            ref.child("sites").once("value", function(snap) {
+                $("#sites").text(JSON.stringify(snap.val()));
+            });
+        };
+        var fillFedorTds = function(ref) {
+            ref.child('sites/_0076').once("value", function(snap) {
+                $("#Fedor-stolovaya").text('+');
+            }, function(error) {
+                $("#Fedor-stolovaya").text('-');
+            });
+            ref.child('sites/_0084').once("value", function(snap) {
+                $("#Fedor-kafe").text('+');
+            }, function(error) {
+                $("#Fedor-kafe").text('-');
+            });
+            ref.child('sites/_0091').once("value", function(snap) {
+                $("#Fedor-tormoz").text('+');
+            }, function(error) {
+                $("#Fedor-tormoz").text('-');
+            });
+        };
+        var fillMariyaTds = function(ref) {
+            ref.child('sites/_0076').once("value", function(snap) {
+                $("#Mariya-stolovaya").text('+');
+            }, function(error) {
+                $("#Mariya-stolovaya").text('-');
+            });
+            ref.child('sites/_0084').once("value", function(snap) {
+                $("#Mariya-kafe").text('+');
+            }, function(error) {
+                $("#Mariya-kafe").text('-');
+            });
+            ref.child('sites/_0091').once("value", function(snap) {
+                $("#Mariya-tormoz").text('+');
+            }, function(error) {
+                $("#Mariya-tormoz").text('-');
+            });
+        };
+        var fillStivTds = function(ref) {
+            ref.child('sites/_0076').once("value", function(snap) {
+                $("#Stiv-stolovaya").text('+');
+            }, function(error) {
+                $("#Stiv-stolovaya").text('-');
+            });
+            ref.child('sites/_0084').once("value", function(snap) {
+                $("#Stiv-kafe").text('+');
+            }, function(error) {
+                $("#Stiv-kafe").text('-');
+            });
+            ref.child('sites/_0091').once("value", function(snap) {
+                $("#Stiv-tormoz").text('+');
+            }, function(error) {
+                $("#Stiv-tormoz").text('-');
+            });
+        };
+        var ref = new Firebase("https://testsecrules.firebaseio.com/");
+        ref.authWithPassword({
+            "email": "fedor@asdf.com",
+            "password": "1"
+        }, function(error, authData) {
+            if (error) {
+                $('#fedor').text(authData ? 'login' : 'not allowed');
+            } else {
+                $('#fedor').text(authData ? 'login' : 'not allowed');
+                fillFedorTds(ref);
+                ref.unauth();
+                ref = null;
+
+                ref = new Firebase("https://testsecrules.firebaseio.com/");
+                ref.authWithPassword({
+                    "email": "maria@zxcv.com",
+                    "password": "1"
+                }, function(error, authData) {
+                    if (error) {
+                        $('#mariya').text(authData ? 'mariya login' : 'not allowed');
+                    } else {
+                        $('#mariya').text(authData ? 'mariya login' : 'not allowed');
+                        fillMariyaTds(ref);
+                        ref.unauth();
+                        ref = null;
+
+                        ref = new Firebase("https://testsecrules.firebaseio.com/");
+                        ref.authWithPassword({
+                            "email": "steve@qwer.com",
+                            "password": "1"
+                        }, function(error, authData) {
+                            if (error) {
+                                $('#stiv').text(authData ? 'stiv login' : 'not allowed');
+                            } else {
+                                $('#stiv').text(authData ? 'stiv login' : 'not allowed');
+                                fillStivTds(ref);
+                                ref.unauth();
+                                ref = null;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+
+    <table>
+        <tr>
+            <th>Users/Sites</th>
+            <th>Fedor</th>
+            <th>Mariya</th>
+            <th>Stiv</th>
+        </tr>
+        <tr>
+            <td>Stolovaya#0</td>
+            <td id="Fedor-stolovaya"></td>
+            <td id="Mariya-stolovaya"></td>
+            <td id="Stiv-stolovaya"></td>
+        </tr>
+        <tr>
+            <td>kafe Zarya</td>
+            <td id="Fedor-kafe"></td>
+            <td id="Mariya-kafe"></td>
+            <td id="Stiv-kafe"></td>
+        </tr>
+        <tr>
+            <td>Avtoshkola "Tormoz"</td>
+            <td id="Fedor-tormoz"></td>
+            <td id="Mariya-tormoz"></td>
+            <td id="Stiv-tormoz"></td>
+        </tr>
+    </table>
+</body>
+
+</html>

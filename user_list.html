@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<script src="https://cdn.firebase.com/js/client/2.2.6/firebase.js"></script>
+
+<title>Page Title</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<style>
+table, th, td {
+    border: 1px solid black;
+} </style>
+</head>
+ <body>
+<h1>Securiti rules test</h1>
+
+<h2>Admin</h2>
+<p id="admin"></p>
+
+<h2>Authors</h2>
+<p id="authors"></p>
+
+<h2>Sites</h2>
+<p id="sites"></p>
+
+
+
+<script>
+var fillAuthors = function(error, authData) {
+    ref.child('authors').once("value", function(snap) {
+        $("#authors").text(JSON.stringify(snap.val()));
+    });
+};
+var fillSites = function(error, authData) {
+    ref.child("sites").once("value", function(snap) {
+        $("#sites").text(JSON.stringify(snap.val()));
+    });
+};
+
+var ref = new Firebase("https://testsecrules.firebaseio.com/");
+ref.authWithPassword({
+    "email": "admin@fghj.com",
+    "password": "1"
+}, function(error, authData) {
+    if (error) {
+        $('#admin').text(authData ? 'login' : 'not allowed');
+    } else {
+        $('#admin').text(authData ? 'login' : 'not allowed');
+        fillAuthors();
+        fillSites();
+        ref.unauth();        
+    }
+});
+
+</script>
+
+
+</body>
+
+</html>
