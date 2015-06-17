@@ -1,0 +1,141 @@
+ td {
+   vertical-align: middle !important;
+ }
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.giant-text {
+    font-size: 40px; margin-top: 5px; color: grey;
+}
+
+.r-btn {
+    margin-left: 1px !important;
+}
+
+.palette {
+    z-index: 100;
+    position: fixed;
+    top: 62px;
+    left: 10px;
+    height: 0px;
+}
+
+.draggable {
+    cursor: move;
+    text-align: left;
+}
+
+.tab-content {
+    margin-top: 51px;
+}
+
+.mysites-pane {
+    padding: 30px;
+    /*width: 70%;*/
+}
+
+.hovered-highlight {
+    border: 3px dotted orange;
+    cursor: move;
+}
+
+.ui-state-highlight {
+    background-color: white;
+    border: 3px dashed lightseagreen;
+    /*position: relative;*/
+    /*float: left;*/
+    /*font-size: 20px;*/
+    /*color: lightseagreen;*/
+    /*text-align: center;*/
+}
+
+.seize-highlight {
+    background-color: white;
+    border: 3px dashed lightseagreen;
+}
+
+.hidden-el {
+    display: none;
+}
+
+.button-remove-wrap {
+    top: 15px;
+    position: relative;
+    right: 15px;
+}
+
+.button-remove {
+    cursor: pointer;
+    float: right;
+    display: none;
+    margin: 10px;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.button-handle-wrap {
+    top: 15px;
+    position: relative;
+    right: 15px;
+}
+
+.button-handle {
+    cursor: pointer;
+    float: right;
+    display: none;
+    margin: 10px;
+
+    position: absolute;
+    top: 0;
+    right: 85px;
+    z-index: 11;
+}
+
+.button-replace-img {
+    display: none;
+    position: absolute;
+    top: 30%;
+    right: 50%;
+    z-index: 15;
+}
+
+.sortable {
+    min-height: 500px;
+}
+
+.subtle-margin-bottom {
+    margin-bottom: 50px;
+}
+
+.block-img {
+    margin: 25px;
+    margin-left: 0px;
+    max-width: 315px;
+}
+
+.map-panel {
+  display: none;
+
+  position: absolute;
+  top: 20%;
+  left: 30%;
+  width: 45%;
+  margin: auto;
+}
+
+.video-panel {
+  display: none;
+
+  width: 50%;
+  margin: auto;
+}

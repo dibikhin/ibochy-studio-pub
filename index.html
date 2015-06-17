@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html ng-app="ibochyStudio">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Студия Ибочи</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- Angular -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+
+  <!-- AngularFire -->
+  <script src="https://cdn.firebase.com/libs/angularfire/1.1.1/angularfire.min.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="js/undomanager.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+  <!-- <script src="js/jquery.ui.touch-punch.min.js"></script> -->
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-62157645-1', 'auto');
+  ga('send', 'pageview');
+  </script>
+  <script src="https://togetherjs.com/togetherjs-min.js"></script>
+</head>
+<body ng-controller="UserController">
+
+  <nav id="studio-navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+        </button>
+        <!-- <a class="navbar-brand" href="#"> -->
+        <strong class="navbar-brand">Версталер</strong>
+      </div>
+
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav" role="tablist" id="tabs">
+          <li ng-show="authData"><a href="#mysites" role="tab" data-toggle="tab" ng-click="hideControls()"><strong>Мои сайты <span class="badge">1</span></strong></a></li>
+          <li class="active" id="editorTab"><a href="#editor" role="tab" data-toggle="tab" ng-click="showControls()"><strong>Редактор</strong></a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-left" id="editorControls" style="  margin-left: 10px;">
+          <li class="noselect">
+            <div class="btn-group">
+              <button type="button" class="btn btn-default navbar-btn undo-button" disabled>Ондо</button>
+              <button type="button" class="btn btn-default navbar-btn r-btn redo-button" disabled>Редо</button>
+            </div>
+            <!-- <a href="http://mysite.ibochy.tk" target="_blank"> </a> -->
+            <button id="publish-btn" type="button" class="btn btn-default navbar-btn" onclick="this.blur(); alert('Войдите, чтобы опубликовать.')" disabled>Опубликовать</button>
+            <!--<button id="save-site-btn" type="button" class="btn btn-default navbar-btn" onclick="this.blur();" ng-click="saveSite()" disabled>Сохранить</button>-->
+            <button disabled id="collab-btn" type="button" class="btn btn-default navbar-btn" onclick="TogetherJS(this); return false;">Вместе</button>
+          </li>
+          <li>
+            <p class="navbar-text">
+              <strong>{{ siteName || "Общий демо-сайт" }}</strong>
+            </p>
+            <p class="navbar-text hidden" id="saving-status">
+              Сохранено
+            </p>
+          </li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li ng-hide="authData" ng-cloak>
+            <form class="navbar-form navbar-left" role="form" ng-submit="loginStaff(staff)">
+              <div class="form-group">
+                <input type="email" class="form-control" placeholder="Имейл" ng-model="staff.email" required>
+                <input type="password" class="form-control" placeholder="Пароль" ng-model="staff.password" required>
+              </div>
+              <button class="btn btn-default" type="submit" onclick="this.blur()" id="login-btn">Войти</button>
+              <!-- <a class="btn btn-info" href="#" ng-hide="authData" ng-cloak role="button">Зарегистироваться</a> -->
+            </form>
+          </li>
+          <li ng-show="authData" ng-cloak><p class="navbar-text"><strong>{{staff.email}}</strong></p></li>
+          <li ng-show="authData" ng-cloak><span class="glyphicon glyphicon-user giant-text"></span></li>
+          <li class="dropdown" ng-show="authData">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <b class="caret"></b> </a>
+            <ul class="dropdown-menu">
+              <li><a href="#"> Профиль</a></li>
+              <li class="divider"></li>
+              <li><a href="#" ng-click="logoutStaff()">Выйти</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+  <!-- Palette -->
+  <!-- todo load palette from db -->
+  <div id="palette" class="palette">
+    <!-- H1 -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-font"></span>
+        &nbsp;Заголовок
+      </div>
+      <div class="hidden-el row hover-mark">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <h1 class="content-editable">SplinterBikeQuantum reveal</h1>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+    </div>
+    
+    <!-- Text -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-align-justify"></span>
+        &nbsp;Абзац
+      </div>
+      <div class="hidden-el row hover-mark">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <!--<div class="col-md-2 item2">-->
+        <!--    <div class="button-replace-wrap"></div>-->
+        <!--    <img src="images/315x315.gif" alt="placeholder 1200x700" style="max-width: 100%;">-->
+        <!--</div>-->
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <p class="content-editable">
+            SBQ has various improvements over its predecessors, although there is&nbsp;no&nbsp;doubting that it&nbsp;comes
+            from the same stable. Many a&nbsp;hard lesson was learnt during the 1,600 hours of&nbsp;designing,
+            prototyping, building and testing of&nbsp;last year&rsquo;s bikes. Mostly issues concerning durability because
+            it&nbsp;soon became apparent that the chosen materials were not the most suitable for this type of&nbsp;vehicle.
+            However, itʼs great fun to&nbsp;see just how far they can be&nbsp;pushed, albeit in&nbsp;the wrong direction?
+          </p>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+    </div>
+
+    <!-- Big pic -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-picture"></span>
+        &nbsp;Большая&nbsp;картинка
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-12 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/1200x700.gif" alt="placeholder 1200x700" style="max-width: 100%;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Pic + Text -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-picture"></span>
+        <span class="glyphicon glyphicon-font"></span>
+        &nbsp;Картинка&nbsp;+&nbsp;Текст
+      </div>
+      <div class="hidden-el row hover-mark">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-2"> </div>
+        <div class="col-md-4 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 325x325" class="block-img">
+        </div>
+        <div class="col-md-4">
+          <h1 class="content-editable">Around 1000 hours to&nbsp;design and construct</h1>
+          <p class="content-editable">
+            The SplinterBike forced me&nbsp;to&nbsp;employ timbers previously unused in&nbsp;my&nbsp;workshop
+            such as&nbsp;Lignum Vitae, a&nbsp;naturally self lubricating hardwood, which is&nbsp;included for bushings
+            to&nbsp;minimise friction where one component turns in&nbsp;an&nbsp;opposing direction to&nbsp;another.
+          </p>
+          <p class="content-editable">
+            Many years of&nbsp;woodworking experience have enabled me&nbsp;to&nbsp;make a&nbsp;bet
+            with a&nbsp;friend and end up&nbsp;developing something that will ultimately set a&nbsp;land speed record
+            for wooden bicycles. It&rsquo;s a&nbsp;testament to&nbsp;the versatility and strength of&nbsp;one of&nbsp;mankind&rsquo;s
+            oldest available materials... and of&nbsp;course, modern glue technology.
+          </p>
+        </div>
+        <div class="col-md-2"> </div>
+      </div>
+    </div>
+
+    <!-- Text + Pic -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-font"></span>
+        <span class="glyphicon glyphicon-picture"></span>
+        &nbsp;Текст&nbsp;+&nbsp;Картинка
+      </div>
+      <div class="hidden-el row hover-mark">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-2"> </div>
+        <div class="col-md-4">
+          <h1 class="content-editable">No bolts or screws, just wood and glues!</h1>
+          <p class="content-editable">
+            The SplinterBike project came about after a&nbsp;casual &pound;1&nbsp;bet turned serious.
+            Inspiration came from many areas but the most significant was the influence of&nbsp;the carbon-fibre
+            Lotus 108 time trial bicycle designed by&nbsp;fellow Norfolk designer Mike Burrows and made by&nbsp;the Norfolk based
+            Lotus car manufacturer.
+          </p>
+          <p class="content-editable">
+            The challenge was to&nbsp;design and build a&nbsp;100% wooden bicycle.
+            <em>&laquo;No&nbsp;bolts or&nbsp;screws, just wood and glues&raquo;</em> were the rules of&nbsp;engagement.
+            What developed was the SplinterBike, creating a&nbsp;new type of&nbsp;human powered vehicle... <em>the Plicycle</em>.
+          </p>
+        </div>
+        <div class="col-md-4 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 325x325" class="block-img">
+        </div>
+        <div class="col-md-2"> </div>
+      </div>
+    </div>
+
+    <!-- Pic -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-picture"></span>
+        &nbsp;Картинка
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-2"> </div>
+        <div class="col-md-8 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/720x420.gif" alt="placeholder 720x420" style="max-width: 100%;">
+        </div>
+        <div class="col-md-2"> </div>
+      </div>
+    </div>
+    
+    <!-- 2 Pics one row Gallery -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-picture"></span>
+        <span class="glyphicon glyphicon-picture"></span>
+        &nbsp; 2 Картинки
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-2"> </div>
+        <div class="col-md-4 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+        <div class="col-md-4 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+        <div class="col-md-2"> </div>
+      </div>
+    </div>
+    
+    <!-- 3 Pics one row Gallery -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-picture"></span>
+        <span class="glyphicon glyphicon-picture"></span>
+        <span class="glyphicon glyphicon-picture"></span>
+        &nbsp; 3 Картинки
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-4 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+        <div class="col-md-4 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+        <div class="col-md-4 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+      </div>
+    </div>
+    
+    <!-- 4 Pics one row Gallery -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-picture"></span>
+        <span class="glyphicon glyphicon-picture"></span>
+        <span class="glyphicon glyphicon-picture"></span>
+        <span class="glyphicon glyphicon-picture"></span>
+        &nbsp; 4 Картинки
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-3 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+        <div class="col-md-3 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+        <div class="col-md-3 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+        <div class="col-md-3 item">
+          <div class="button-replace-wrap"></div>
+          <img src="images/315x315.gif" alt="placeholder 315x315" style="max-width: 100%;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Carousel -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-film"></span>
+        &nbsp;Слайд-шоу
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-12">
+          <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+              <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+              <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+              <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner">
+              <div class="item active">
+                <div class="button-replace-wrap"></div>
+                <img src="images/1200x700.gif" alt="placeholder 1200x700" style="max-width: 100%;">
+              </div>
+              <div class="item">
+                <div class="button-replace-wrap"></div>
+                <img src="images/1200x700.gif" alt="placeholder 1200x700" style="max-width: 100%;">
+              </div>
+              <div class="item">
+                <div class="button-replace-wrap"></div>
+                <img src="images/1200x700.gif" alt="placeholder 1200x700" style="max-width: 100%;">
+              </div>
+            </div>
+          </div> <!-- Carousel ends -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-globe"></span>
+        &nbsp;Карта
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-12 map">
+          <div class="panel panel-default map-panel">
+            <div class="panel-body">
+              <textarea class="form-control map-url" rows="3">Москва</textarea>
+            </div>
+          </div>
+          <img
+          src="http://maps.googleapis.com/maps/api/staticmap?center=Москва&zoom=12&scale=2&size=600x350&maptype=roadmap&format=png&visual_refresh=true&markers=%7Ccolor:red%7Clabel:.%7CМосква"
+          alt="Google Map of Moscow"
+          style="max-width: 100%;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Video -->
+    <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-facetime-video"></span>
+        &nbsp;Видео
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <div class="col-md-2"></div>
+        <div class="col-md-8 video">
+          <div class="video-panel">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <textarea class="form-control video-url" rows="1"
+                placeholder="Ид видео. Что-то вроде XTqeuBGfkr8"
+                >XTqeuBGfkr8</textarea>
+              </div>
+            </div>
+          </div>
+          <iframe width="720" height="420" frameborder="0" src="http://www.youtube.com/embed/XTqeuBGfkr8"></iframe>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+    </div>
+
+    <!-- Menu -->
+    <!-- <div class="btn btn-default btn-block draggable">
+      <div class="dummy">
+        <span class="glyphicon glyphicon-menu-hamburger"></span>
+        &nbsp;Меню
+      </div>
+      <div class="hidden-el row hover-mark subtle-margin-bottom">
+        <div class="button-remove-wrap"></div>
+        <div class="button-handle-wrap"></div>
+        <nav class="navbar">
+          <div class="container-fluid">
+
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Brand</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Начало</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                    Dropdown <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">Action</a></li>
+                  </ul>
+                </li>
+                <li><select class="form-control">
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                </select></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div> -->
+
+  </div> <!-- Palette Ends -->
+
+  <div class="tab-content">
+    <div class="tab-pane mysites-pane" id="mysites" ng-controller="SiteController">
+      <button type="button" class="btn btn-default" ng-init="showInputs = false; showEdits = false; isSaveEditOff = true" onclick="this.blur()" ng-click="showInputs = true" id="btn-create-site" ng-disabled="showInputs">Создать</button>
+      <div ng-hide="(sites !== null && sites.length !== 0) || showInputs">Здесь будет список ваших сайтов.</div>
+      <table class="table table-striped table-hover" ng-show="(sites !== null && sites.length !== 0) || showInputs">
+        <thead>
+          <tr>
+            <th style="width: 250px;">Название</th>
+            <th>Адрес</th>
+            <th>Создан</th>
+            <th>Изменен</th>
+            <th style="width: 320px;">
+              <!-- buttons -->
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-show="showInputs">
+            <td>
+              <input type="text" class="form-control" ng-model="newSite.name" ng-change="newSiteNameChanged(newSite.name)">
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+              <button type="button" class="btn btn-primary" ng-click="addSite(); showInputs = false" ng-disabled="isSaveEditOff">Сохранить</button>
+              <button type="button" class="btn btn-default" ng-click="showInputs = false">Отмена</button>
+            </td>
+          </tr>
+          <tr ng-repeat="site in sites | orderBy:'name'">
+            <td>
+              <div ng-hide="showEdits">
+                {{ site.name }}
+              </div>
+              <input type="text" class="form-control" ng-model="site.name" ng-show="showEdits">
+            </td>
+            <td>{{ site.domain }}</td>
+            <td style="white-space: nowrap">{{ site.tcrAt | date:'medium' }}</td>
+            <td style="white-space: nowrap">{{ site.tupAt | date:'medium' }}</td>
+            <td>
+              <button type="button" class="btn btn-default" ng-hide="showEdits" ng-click="showEdits = true">Изменить</button>
+              <button type="button" class="btn btn-default" ng-hide="showEdits" ng-click="openInEditor(site)">Открыть в редакторе</button>
+              <div ng-show="showEdits">
+                <button type="button" class="btn btn-primary" ng-click="editSite(site); showEdits = false;">Сохранить</button>
+                <button type="button" class="btn btn-default" ng-click="showEdits = false">Отмена</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane active" id="editor">
+      <div id="canvas" ng-controller="TemplateController"></div>
+    </div>
+  </div>
+
+</body>
+</html>
