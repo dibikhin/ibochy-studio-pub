@@ -1,5 +1,5 @@
 (function(){
-    var firebase = new Firebase("https://ibochy.firebaseio.com");
+    var firebase = new Firebase("https://ibochy-test.firebaseio.com");
 
     var editor = new Editor();
 
@@ -181,9 +181,12 @@
             };
 
             var bindSites = function() {
-                var sites = firebase.child('sites');
-                $scope.sites = $firebaseArray(sites);
-            };
+                //   var sites = firebase.child('sites');
+              var sites = firebase.child('sites')
+                    .orderByChild('author_uid')
+                    .equalTo($scope.authData.auth.uid);
+                 $scope.sites = $firebaseArray(sites);
+             };
 
             $scope.$on('bindSites', function(event, args) {
                 bindSites();

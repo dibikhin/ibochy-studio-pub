@@ -1,6 +1,6 @@
  var Editor = function() {
     var getHardRandomInt = function() {
-        var max = 10,
+        var max = 1000000,
             min =  0;
         return Math.floor(Math.random() * (max - min)) + min;
     };
@@ -229,11 +229,11 @@
                     });
 
                     droppedEl.replaceWith($block);
-
-                    // todo set carousel ids
-                    $('.carousel', $block).attr('id', 'hgnb8574');
-                    $('.carousel ol li', $block).attr('data-target', '#hgnb8574');
-
+                    
+                    var carouselId = composeRandId();
+                    $('.carousel', $block).attr('id', carouselId);
+                    $('.carousel ol li', $block).attr('data-target', '#' + carouselId);
+                    $('.carousel a', $block).attr('href', '#' + carouselId);
                     // todo remove copypaste
                     var insertElement = function() {
                         var cont = getElement();
