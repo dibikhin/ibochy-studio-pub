@@ -1,5 +1,5 @@
 (function(){
-    var firebase = new Firebase("https://ibochy-test.firebaseio.com");
+    var firebase = new Firebase("https://ibochy.firebaseio.com");
 
     var editor = new Editor();
 
