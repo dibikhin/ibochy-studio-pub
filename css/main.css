@@ -78,7 +78,7 @@
     margin: 10px;
 
     position: absolute;
-    top: 0;
+    top: 5px;
     right: 0;
     z-index: 10;
 }
@@ -96,7 +96,7 @@
     margin: 10px;
 
     position: absolute;
-    top: 0;
+    top: 5px;
     right: 85px;
     z-index: 11;
 }
@@ -113,19 +113,13 @@
     min-height: 500px;
 }
 
-.subtle-margin-bottom {
-    margin-bottom: 50px;
-}
-
 .block-img {
-    margin: 25px;
-    margin-left: 0px;
-    max-width: 315px;
+    margin-top: 25px;
+    max-width: 100%;
 }
 
 .map-panel {
   display: none;
-
   position: absolute;
   top: 20%;
   left: 30%;
@@ -135,7 +129,6 @@
 
 .video-panel {
   display: none;
-
   width: 50%;
   margin: auto;
 }
