@@ -1,5 +1,6 @@
 (function(){
     var firebase = new Firebase("https://ibochy.firebaseio.com");
+    // var firebase = new Firebase("https://ibochy-test.firebaseio.com");
 
     var editor = new Editor();
 
@@ -103,21 +104,24 @@
     ibochyStudio.controller('TemplateController', ['$scope',
         function($scope) {
             $scope.layoutId = null; // todo bad smell: local state
-            var loadTemplate = function(layout_id) {
+            var bindLayout = function(layout_id) {
                 $scope.layoutId = layout_id;
-                firebase.child('layouts/' + layout_id).once('value', function(data) {
-                    $('#canvas').html(data.val().doc); // it's layout.doc
-                    initEditor(editor);
-                    editorTabOn();
-                    $('#editorControls').show();
-                    $('#palette').show();
-                });
+                firebase.child('layouts/' + layout_id).once( // on is live is danger
+                    'value', 
+                    function(data) {
+                        $('#canvas').html(data.val().doc); // it's layout.doc
+                        initEditor(editor);
+                        editorTabOn();
+                        $('#editorControls').show();
+                        $('#palette').show();
+                    });
             };
-            loadTemplate('_0022');
+            bindLayout('_0022');
 ////////////// todo danger editor loads twice
 // todo reset undo
             $scope.$on('openInEditor', function(event, site) {
-                loadTemplate(site.layout_id);
+                firebase.off("value"); // todo danger global off
+                bindLayout(site.layout_id);
                 $scope.$parent.siteName = site.name; // todo stale after editing name
                 $('#save-site-btn').removeAttr('disabled');
             });
