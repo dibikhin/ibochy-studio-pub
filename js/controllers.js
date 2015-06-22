@@ -127,9 +127,10 @@
             });
             
             var saveSite = function() {
+                var cleanSite =  $('#canvas').html();
                 var site = firebase.child('layouts/' + $scope.layoutId);
                 site.update({
-                    doc: $('#canvas').html(),
+                    doc: cleanSite,
                     tupAt: Firebase.ServerValue.TIMESTAMP
                 });
                 $('#saving-status').removeClass('hidden');
