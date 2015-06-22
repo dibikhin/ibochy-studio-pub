@@ -106,7 +106,7 @@
             $scope.layoutId = null; // todo bad smell: local state
             var bindLayout = function(layout_id) {
                 $scope.layoutId = layout_id;
-                firebase.child('layouts/' + layout_id).once( // on is live is danger
+                firebase.child('layouts/' + layout_id).on( // on is live is danger
                     'value', 
                     function(data) {
                         $('#canvas').html(data.val().doc); // it's layout.doc

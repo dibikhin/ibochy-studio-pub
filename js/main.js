@@ -288,21 +288,21 @@
             };
 
             var undoRedoOnOff = function() {
-                toggle($('.undo-button'), undoManager.hasUndo);
-                toggle($('.redo-button'), undoManager.hasRedo);
+                // toggle($('.undo-button'), undoManager.hasUndo);
+                // toggle($('.redo-button'), undoManager.hasRedo);
             };
 
             undoManager.setCallback(undoRedoOnOff);
 
-            $('.undo-button').click(function () {
-                undoManager.undo();
-                $(this).blur();
-            });
+            // $('.undo-button').click(function () {
+            //     undoManager.undo();
+            //     $(this).blur();
+            // });
 
-            $('.redo-button').click(function () {
-                undoManager.redo();
-                $(this).blur();
-            });
+            // $('.redo-button').click(function () {
+            //     undoManager.redo();
+            //     $(this).blur();
+            // });
 
             $( document ).on( 'click', '.button-remove', function() {
                 var insertElement = function() {
