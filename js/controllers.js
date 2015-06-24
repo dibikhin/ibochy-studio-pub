@@ -4,7 +4,7 @@
 
     var editor = new Editor();
 
-    var editorTabOn = function() {
+    var editorTabShow = function() {
         $('#tabs a[href="#editor"]').tab('show');
     };
 
@@ -20,7 +20,7 @@
             if ($scope.authData) {
                 $scope.staff = {}; // staff is author
                 $scope.staff.email = $scope.authData.password.email;
-                editorTabOn();
+                editorTabShow();
                 $timeout(function() {
                     $rootScope.$broadcast('bindSites', {}); // dirty, but works only
                 });
@@ -39,8 +39,7 @@
                 }).then(function(authData) {
                     $scope.staff.password = '';
                     $rootScope.$broadcast('bindSites', {});
-                    editorTabOn();
-                    // set last_seen_at
+                    editorTabShow();
                     var author = firebase.child('authors/' + authData.uid);
                     author.update({
                         last_seen_at: Firebase.ServerValue.TIMESTAMP
@@ -72,7 +71,7 @@
                 $scope.auth.$unauth();
                 $scope.staff = {};
                 $('#login-btn').removeAttr('disabled');
-                editorTabOn();
+                editorTabShow();
                 $rootScope.$broadcast('clearSites', {});
                 $scope.showControls();
                 $('#save-site-btn').attr('disabled', 'disabled');
@@ -105,28 +104,39 @@
         
         editor.paletteOff();
         editor.paletteOn();
+        
+        editor.mapUrlKeyUpInit();
+        
+        editor.videoCodeKeyUpInit();
     };
 
     ibochyStudio.controller('TemplateController', ['$scope',
         function($scope) {
             $scope.layoutId = null; // todo bad smell: local state
+            var currentLayoutRef = null; // todo bad smell: local state 2
             var bindLayout = function(layout_id) {
                 $scope.layoutId = layout_id;
-                firebase.child('layouts/' + layout_id).on( // on is live is danger
+                currentLayoutRef = firebase.child('layouts/' + layout_id);
+                currentLayoutRef.on( // on is live is danger
                     'value', 
                     function(data) {
                         $('#canvas').html(data.val().doc); // it's layout.doc
                         resetEditor(editor);
-                        editorTabOn();
                         $('#editorControls').show();
                         $('#palette').show();
                     });
+                // todo off while on 'My Sites'
             };
+            
             bindLayout('_0022');
+            editorTabShow();
 
             $scope.$on('openInEditor', function(event, site) {
-                firebase.off("value"); // todo danger global off
+                if (currentLayoutRef) { 
+                    currentLayoutRef.off('value');
+                }
                 bindLayout(site.layout_id);
+                editorTabShow();
                 $scope.$parent.siteName = site.name; // todo stale after editing name
                 $('#save-site-btn').removeAttr('disabled');
             });
@@ -189,7 +199,6 @@
             };
 
             var bindSites = function() {
-                //   var sites = firebase.child('sites');
               var sites = firebase.child('sites')
                     .orderByChild('author_uid')
                     .equalTo($scope.authData.auth.uid);
