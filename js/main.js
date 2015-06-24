@@ -83,9 +83,11 @@
             $('.button-replace-wrap', context).html(
                 '<label class="button-replace-img btn btn-default" for="my-file-selector"><input id="my-file-selector" style="display:none;" type="file"/>Заменить</label>');
         },
-        createHandleButtons: function(context) {
+        handleButtonsCreate: function(context) {
             $('.button-handle-wrap', context).html(
                 '<label class="btn btn-default button-handle">Схватить</label>');
+        },
+        handleButtonsOn: function() {
             $(document).on('mousedown', '.button-handle', function() {
                 $(this).text('Двигай');
                 $(this).closest('.hover-mark').addClass('seize-highlight');
@@ -93,13 +95,19 @@
                     $(this).text('Отпусти');
                 });
             });
+            
             $(document).on('mouseup', '.button-handle', function() {
                 $(this).text('Схватить');
                 $(this).closest('.hover-mark').removeClass('seize-highlight');
                 $(document).off('mousemove', '.button-handle');
             });
         },
-        initHoverMark: function() { // todo rename hover to smth
+        handleButtonsOff: function() {
+            $(document).off('mousedown', '.button-handle');
+            $(document).off('mouseup', '.button-handle');
+            $(document).off('mousemove', '.button-handle');
+        },
+        hoverMarkOn: function() { // todo rename hover to smth
             $( document ).on( 'mouseenter', '.hover-mark', function() {
                 // $(this).addClass( 'hovered-highlight' ); // todo revove hovers?
                 $(this).find('.button-remove').show();
@@ -117,6 +125,10 @@
                 $(this).find('.map-panel').hide();
                 $(this).find('.video-panel').hide();
             });
+        },
+        hoverMarkOff: function() {
+            $(document).off( 'mouseenter', '.hover-mark');
+            $(document).off( 'mouseleave', '.hover-mark');
         },
         initSortable: function(undoManager) {
             var prevMoves = [];
@@ -186,16 +198,17 @@
                         // .css( 'line-height', ui.item.height() + 'px' ); // kill me)))
                         //.html('Бросить сюда');
                 },
-                stop: function() { 
-                    //console.log('sortable stop');
+                stop: function() {
                     $(document).trigger('domChanged');
                 },
                 update: function(event, ui) {
                     // new block has no prev id but it has own undoManager.add call
                     if (tempItemId === null || tempPrevItemId === null)
                         return;
-                    addPrevMove(tempItemId, tempPrevItemId);
-                    undoManager.add({undo: moveToPrev, redo: moveToNext });
+                    // addPrevMove(tempItemId, tempPrevItemId);
+                    // undoManager.add({undo: moveToPrev, redo: moveToNext });
+                    
+                    // should not fire domChanged here, 'cause "stop" fires it
                 },
                 receive : function(event, ui) {
                     var droppedEl = $(this).data().uiSortable.currentItem;
@@ -234,31 +247,37 @@
                     $('.carousel', $block).attr('id', carouselId);
                     $('.carousel ol li', $block).attr('data-target', '#' + carouselId);
                     $('.carousel a', $block).attr('href', '#' + carouselId);
+                    
                     // todo remove copypaste
-                    var insertElement = function() {
-                        var cont = getElement();
-                        cont.el.insertAfter($('#' + cont.prev));
-                    };
+                    // var insertElement = function() {
+                    //     var cont = getElement();
+                    //     cont.el.insertAfter($('#' + cont.prev));
+                    // };
 
-                    var extractElement = function() {
-                        var prevId = $block.prev().attr('id');
-                        var detachedEl = $block.detach();
-                        addElement({ prev: prevId, el: detachedEl });
-                        $(document).trigger('domChanged');
-                    };
-
-                    undoManager.add({ undo: extractElement, redo: insertElement });
+                    // var extractElement = function() {
+                    //     var prevId = $block.prev().attr('id');
+                    //     var detachedEl = $block.detach();
+                    //     addElement({ prev: prevId, el: detachedEl });
+                    //     $(document).trigger('domChanged');
+                    // };
+                    
+                    // should not fire 'domChanged' here too, 'cause "stop" fires it
+                    
+                    // undoManager.add({ undo: extractElement, redo: insertElement });
 
                     return true;
                 }
             });
         },
-        initContentEditable: function() {
+        initContentEditable: function() { // todo may do nothing, delete?
+            $(document).off( 'click', '.content-editable');
+            $(document).off( 'blur', '.content-editable');
+            
             $( document ).on( 'click', '.content-editable', function() {
                 $( this ).prop( 'contentEditable', true );
                 $( this ).focus();
                 //// $( '.hover-mark' ).removeClass( 'hovered-highlight' );
-                //$( '.sortable' ).sortable({ disabled: true });
+                ////$( '.sortable' ).sortable({ disabled: true });
             });
 
             $( document ).on( 'blur', '.content-editable', function() {
@@ -288,27 +307,29 @@
             };
 
             var undoRedoOnOff = function() {
-                toggle($('.undo-button'), undoManager.hasUndo);
-                toggle($('.redo-button'), undoManager.hasRedo);
+                // toggle($('.undo-button'), undoManager.hasUndo);
+                // toggle($('.redo-button'), undoManager.hasRedo);
             };
 
             undoManager.setCallback(undoRedoOnOff);
 
-            $('.undo-button').click(function () {
-                undoManager.undo();
-                $(this).blur();
-            });
+            // $('.undo-button').click(function () {
+            //     undoManager.undo();
+            //     $(this).blur();
+            // });
 
-            $('.redo-button').click(function () {
-                undoManager.redo();
-                $(this).blur();
-            });
-
+            // $('.redo-button').click(function () {
+            //     undoManager.redo();
+            //     $(this).blur();
+            // });
+            
+            $(document).off('click', '.button-remove');
+            
             $( document ).on( 'click', '.button-remove', function() {
-                var insertElement = function() {
-                    var cont = getElement();
-                    cont.el.insertAfter($('#' + cont.prev));
-                };
+                // var insertElement = function() {
+                //     var cont = getElement();
+                //     cont.el.insertAfter($('#' + cont.prev));
+                // };
 
                 var buttonRemove = $(this);
                 buttonRemove.hide();
@@ -316,17 +337,17 @@
 
                 var extractElement = function() {
                     var parent = buttonRemove.closest('.row');
-                    // parent.removeClass('hovered-highlight');
+                    // // parent.removeClass('hovered-highlight');
 
-                    var prevId = parent.prev().attr('id');
+                    // var prevId = parent.prev().attr('id');
                     var detachedElement = parent.detach();
-                    addElement({ prev: prevId, el: detachedElement });
+                    // addElement({ prev: prevId, el: detachedElement });
                     $(document).trigger('domChanged');
                 };
 
                 extractElement();
 
-                undoManager.add({ undo: insertElement, redo: extractElement });
+                // undoManager.add({ undo: insertElement, redo: extractElement });
             });
 
             return undoManager;
