@@ -56,13 +56,12 @@
                 $('#editorControls').hide();
                 $('#palette').hide();
 
-                // todo editor off
+                // todo editor off while 'My sites' is active
             };
 
             $scope.showControls = function() {
                 $('#editorControls').show();
                 editor.paletteOn();
-                // todo editor on
             };
 
             $scope.saveSite = function() {
@@ -77,20 +76,25 @@
                 $rootScope.$broadcast('clearSites', {});
                 $scope.showControls();
                 $('#save-site-btn').attr('disabled', 'disabled');
-                // todo editor off
+                // todo load "Demo site"
             };
         }]);
 
-    var initEditor = function(editor) {
+    var resetEditor = function(editor) {
         editor.createRemoveButtons('#palette');
         editor.createReplaceButtons('#palette');
-        editor.createHandleButtons('#palette');
-
+        
         editor.createRemoveButtons('#canvas');
         editor.createReplaceButtons('#canvas');
-        editor.createHandleButtons('#canvas');
+        
+        editor.handleButtonsOff();
+        editor.handleButtonsCreate('#palette');
+        editor.handleButtonsCreate('#canvas');
+        editor.handleButtonsOn();
 
-        editor.initHoverMark();
+        editor.hoverMarkOff();
+        editor.hoverMarkOn();
+        
         editor.initContentEditable();
 
         var undoManager = editor.initUndoRedoAndDelete();
@@ -98,6 +102,8 @@
 
         editor.initDraggable();
         editor.initFileUpload();
+        
+        editor.paletteOff();
         editor.paletteOn();
     };
 
@@ -110,15 +116,14 @@
                     'value', 
                     function(data) {
                         $('#canvas').html(data.val().doc); // it's layout.doc
-                        initEditor(editor);
+                        resetEditor(editor);
                         editorTabOn();
                         $('#editorControls').show();
                         $('#palette').show();
                     });
             };
             bindLayout('_0022');
-////////////// todo danger editor loads twice
-// todo reset undo
+
             $scope.$on('openInEditor', function(event, site) {
                 firebase.off("value"); // todo danger global off
                 bindLayout(site.layout_id);
@@ -127,8 +132,8 @@
             });
             
             var saveSite = function() {
-                var cleanSite =  $('#canvas').html();
                 var site = firebase.child('layouts/' + $scope.layoutId);
+                var cleanSite = $('#canvas').html();//.replace('contenteditable="true"', '');
                 site.update({
                     doc: cleanSite,
                     tupAt: Firebase.ServerValue.TIMESTAMP
@@ -140,10 +145,8 @@
             
             $scope.$on('saveSite', saveSite);
             
-            // todo developer.mozilla.org/en-US/docs/Web/API/MutationObserver
             $(document).bind('domChanged', function(){
                 saveSite();
-                // alert('Dom changed');
             });
         }]);
 
