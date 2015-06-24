@@ -119,6 +119,7 @@
 
             $( document ).on( 'mouseleave', '.hover-mark', function() {
                 // $(this).removeClass( 'hovered-highlight' );
+// todo call hide all before save
                 $(this).find('.button-remove').hide();
                 $(this).find('.button-replace-img').hide();
                 $(this).find('.button-handle').hide();
@@ -224,22 +225,7 @@
                     }
 
                     buildImgUploaders($('.item', $block)); // todo lol item:)
-                    buildImgUploaders2($('.item2', $block)); // todo lol item:)
-
-                    var $mapUrl = $block.find('.map .map-url');
-                    var $mapImg = $block.find('.map img');
-                    $mapUrl.keyup(function() {
-                      var $encodedAddress = encodeURI(this.value);
-                      var $url = 'http://maps.googleapis.com/maps/api/staticmap?center=' + $encodedAddress +  '&zoom=12&scale=2&size=600x350&maptype=roadmap&format=png&visual_refresh=true&markers=%7Ccolor:red%7Clabel:.%7C' + $encodedAddress;
-                      $mapImg.attr('src', $url);
-                      $mapImg.attr('alt', 'Google Map');
-                    });
-
-                    var $videoUrl = $block.find('.video .video-url');
-                    var $videoEmbed = $block.find('.video iframe');
-                    $videoUrl.keyup(function() {
-                      $videoEmbed.attr('src', 'http://www.youtube.com/embed/' + this.value);
-                    });
+                    buildImgUploaders2($('.item2', $block)); // todo lol item2:)
 
                     droppedEl.replaceWith($block);
                     
@@ -399,6 +385,39 @@
         paletteOff: function() {
           $( document ).off( 'mouseenter', '#studio-navbar');
           $( document ).off( 'mouseleave', '#studio-navbar');
+        },
+        mapUrlKeyUpInit: function() {
+            $(document).off('keyup', '.map-url');
+            $(document).off('blur', '.map-url');
+            
+            $(document).on('keyup', '.map-url', function() {
+                var $mapUrl = $(this);
+                $mapUrl.text($mapUrl.val());
+                var encodedAddress = encodeURI($mapUrl.val());
+                var url = 'http://maps.googleapis.com/maps/api/staticmap?center=' + encodedAddress +  '&zoom=12&scale=2&size=600x350&maptype=roadmap&format=png&visual_refresh=true&markers=%7Ccolor:red%7Clabel:.%7C' + encodedAddress;
+                var $mapImg = $mapUrl.closest('.map').find('img');
+                $mapImg.attr('src', url);
+                $mapImg.attr('alt', $mapUrl.val() + ' на карте Гугла');
+            });
+            
+            $(document).on('blur', '.map-url', function() {
+                $(document).trigger('domChanged');
+            });
+        },
+        videoCodeKeyUpInit: function() {
+            $(document).off('keyup', '.video-url');
+            $(document).off('blur', '.video-url');
+            
+            $(document).on('keyup', '.video-url', function() {
+                var $videoUrl = $(this);
+                $videoUrl.text($videoUrl.val());
+                var $videoEmbed = $videoUrl.closest('.video').find('iframe');
+                $videoEmbed.attr('src', 'https://www.youtube.com/embed/' + $videoUrl.val());
+            });
+            
+            $(document).on('blur', '.video-url', function() {
+                $(document).trigger('domChanged');
+            });
         }
     };
 };
@@ -406,7 +425,6 @@
 // todo warning: there's decls w/o var
 // todo liquidate dummy wrapping div over text block col
 // todo escape 'event' word
-// todo add meaningful fish w/ copywriter contact info:)
 
 // console.log();
 // debugger
