@@ -35,6 +35,7 @@
             // background-image: url(data:image/png; base64, iVBORw0...);
             $('body').css('background-image', 'url(' + e.target.result + ')');
             $('body').css('background-repeat', 'no-repeat');
+            $(document).trigger('domChanged');
         };
         
         $fileUploadInput.embedImg = embedImg;
@@ -91,9 +92,12 @@
                 '<label class="button-replace-background-img btn btn-default" for="my-file-selector"><input id="my-file-selector" style="display:none;" type="file"/>Заменить фон</label> <button type="button" class="button-remove-background-img btn btn-default">Удалить фон</button>');
         },
         removeBackgroundImgButtonInit: function() {
+            $(document).off('click', '.button-remove-background-img');
+
             $(document).on('click', '.button-remove-background-img', function() {
                 $('body').css('background-image', '');
                 $(this).blur();
+                $(document).trigger('domChanged');
             });
         },
         handleButtonsCreate: function(context) {
