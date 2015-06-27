@@ -1,6 +1,6 @@
 (function(){
-    var firebase = new Firebase("https://ibochy.firebaseio.com");
-    // var firebase = new Firebase("https://ibochy-test.firebaseio.com");
+    // var firebase = new Firebase("https://ibochy.firebaseio.com");
+    var firebase = new Firebase("https://ibochy-test.firebaseio.com");
 
     var editor = new Editor();
 
@@ -82,6 +82,8 @@
     var resetEditor = function(editor) {
         editor.createRemoveButtons('#palette');
         editor.createReplaceButtons('#palette');
+        
+        editor.removeBackgroundImgButtonInit();
         
         editor.createRemoveButtons('#canvas');
         editor.createReplaceButtons('#canvas');
