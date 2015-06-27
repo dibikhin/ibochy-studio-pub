@@ -109,6 +109,20 @@
     z-index: 15;
 }
 
+.button-replace-background-img {
+    position: absolute;
+    left: 1217px;
+    z-index: 15;
+}
+
+.button-remove-background-img {
+  position: absolute;
+  left: 1217px;
+  top: 39px;
+  z-index: 15;
+  width: 121px;
+}
+
 .sortable {
     min-height: 500px;
 }

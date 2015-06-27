@@ -9,36 +9,41 @@
         return '' + $.now() + '-' + getHardRandomInt() + '-' + getHardRandomInt();
     };
 
+    // todo refactor duplicates & names in uploaders
+
     var attachFileUploader = function($fileUploadInput, $img) {
         var embedImg = function(e) {
             // <img src="data:image/png; base64, iVBORw0...
             $img.attr('src', e.target.result);
             $(document).trigger('domChanged');
         };
+        
         $fileUploadInput.embedImg = embedImg;
-
         $fileUploadInput.imageUpload = function(element) {
             var reader = new FileReader();
             reader.onload = $fileUploadInput.embedImg;
             reader.readAsDataURL(element.files[0]);
         };
+        
         $fileUploadInput.change(function() {
             $fileUploadInput.imageUpload(this);
         });
     };
     
-    var attachFileUploader2 = function($fileUploadInput, $el) {
+    var attachBackgroundFileUploader = function($fileUploadInput) {
         var embedImg = function(e) {
             // background-image: url(data:image/png; base64, iVBORw0...);
-            $el.css('background-image', 'url(' + e.target.result + ')');
+            $('body').css('background-image', 'url(' + e.target.result + ')');
+            $('body').css('background-repeat', 'no-repeat');
         };
+        
         $fileUploadInput.embedImg = embedImg;
-
         $fileUploadInput.imageUpload = function(element) {
             var reader = new FileReader();
             reader.onload = $fileUploadInput.embedImg;
             reader.readAsDataURL(element.files[0]);
         };
+        
         $fileUploadInput.change(function() {
             $fileUploadInput.imageUpload(this);
         });
@@ -59,7 +64,7 @@
         });
     };
     
-    var buildImgUploaders2 = function($items) {
+    var buildBackgroundFileUploaders = function($items) {
         $items.each(function(_, itm) {
             var $item = $(itm);
             var $fileUploadInput = $item.find('input');
@@ -69,8 +74,7 @@
             $fileUploadLabel.attr('for', newFSId);
             $fileUploadInput.attr('id', newFSId);
             
-            var $img = $item; //.find('img');
-            attachFileUploader2($fileUploadInput, $item);
+            attachBackgroundFileUploader($fileUploadInput);
         });
     };
 
@@ -82,6 +86,15 @@
         createReplaceButtons: function(context) {
             $('.button-replace-wrap', context).html(
                 '<label class="button-replace-img btn btn-default" for="my-file-selector"><input id="my-file-selector" style="display:none;" type="file"/>Заменить</label>');
+            
+            $('.button-replace-background-wrap', context).html(
+                '<label class="button-replace-background-img btn btn-default" for="my-file-selector"><input id="my-file-selector" style="display:none;" type="file"/>Заменить фон</label> <button type="button" class="button-remove-background-img btn btn-default">Удалить фон</button>');
+        },
+        removeBackgroundImgButtonInit: function() {
+            $(document).on('click', '.button-remove-background-img', function() {
+                $('body').css('background-image', '');
+                $(this).blur();
+            });
         },
         handleButtonsCreate: function(context) {
             $('.button-handle-wrap', context).html(
@@ -225,7 +238,6 @@
                     }
 
                     buildImgUploaders($('.item', $block)); // todo lol item:)
-                    buildImgUploaders2($('.item2', $block)); // todo lol item2:)
 
                     droppedEl.replaceWith($block);
                     
@@ -370,8 +382,8 @@
             var $templateImgUploaders = $('.item', '.container');
             buildImgUploaders($templateImgUploaders);
             
-            var $templateImgUploaders2 = $('.item2', '.container');
-            buildImgUploaders2($templateImgUploaders2);
+            var $backgroundFileUploaders = $('.item2', '.palette');
+            buildBackgroundFileUploaders($backgroundFileUploaders);
         },
         paletteOn: function() {
           $( document ).on( 'mouseenter', '#studio-navbar', function() {

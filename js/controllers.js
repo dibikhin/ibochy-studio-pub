@@ -83,6 +83,8 @@
         editor.createRemoveButtons('#palette');
         editor.createReplaceButtons('#palette');
         
+        editor.removeBackgroundImgButtonInit();
+        
         editor.createRemoveButtons('#canvas');
         editor.createReplaceButtons('#canvas');
         
