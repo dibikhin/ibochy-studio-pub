@@ -1,13 +1,16 @@
 (function(){
-    var firebase = new Firebase("https://ibochy.firebaseio.com");
-    // var firebase = new Firebase("https://ibochy-test.firebaseio.com");
-
+    var firebase = null;
+    if (window.location.hostname === "verstaler.ml") {
+        firebase = new Firebase("https://ibochy.firebaseio.com");
+    } else {
+        firebase = new Firebase("https://ibochy-test.firebaseio.com");
+    }
     var editor = new Editor();
-
+    
     var editorTabShow = function() {
         $('#tabs a[href="#editor"]').tab('show');
     };
-
+    
     var ibochyStudio = angular.module('ibochyStudio', ["firebase"]);
 
     ibochyStudio.controller('UserController', [

@@ -47,8 +47,8 @@
           <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
         </button>
         <a href="http://verstaler.ml/landing.html">
-            <strong class="navbar-brand">Версталер</strong>
-            <!--<strong class="navbar-brand">Версталер ТЕСТ</strong>-->
+            <strong id="navbar-brand" class="navbar-brand hidden">Версталер</strong>
+            <strong id="navbar-brand-test" class="navbar-brand hidden">Версталер ТЕСТ</strong>
         </a>
       </div>
 
@@ -671,6 +671,12 @@
       <div id="canvas" ng-controller="TemplateController"></div>
     </div>
   </div>
-
+<script>
+    if (window.location.hostname === "verstaler.ml") {
+        $('#navbar-brand').removeClass('hidden');
+    } else {
+        $('#navbar-brand-test').removeClass('hidden');
+    } 
+</script>
 </body>
 </html>
