@@ -41,6 +41,10 @@
     /*width: 70%;*/
 }
 
+#pseudo-body {
+    height: 100vh;
+}
+
 .hovered-highlight {
     border: 3px dotted orange;
     cursor: move;
