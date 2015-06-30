@@ -33,8 +33,8 @@
     var attachBackgroundFileUploader = function($fileUploadInput) {
         var embedImg = function(e) {
             // background-image: url(data:image/png; base64, iVBORw0...);
-            $('body').css('background-image', 'url(' + e.target.result + ')');
-            $('body').css('background-repeat', 'no-repeat');
+            $('#pseudo-body').css('background-image', 'url(' + e.target.result + ')');
+            $('#pseudo-body').css('background-repeat', 'no-repeat');
             $(document).trigger('domChanged');
         };
         
@@ -95,7 +95,7 @@
             $(document).off('click', '.button-remove-background-img');
 
             $(document).on('click', '.button-remove-background-img', function() {
-                $('body').css('background-image', '');
+                $('#pseudo-body').css('background-image', '');
                 $(this).blur();
                 $(document).trigger('domChanged');
             });
