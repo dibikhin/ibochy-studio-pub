@@ -45,11 +45,6 @@
     height: 100vh;
 }
 
-.hovered-highlight {
-    border: 3px dotted orange;
-    cursor: move;
-}
-
 .ui-state-highlight {
     background-color: white;
     border: 3px dashed lightseagreen;

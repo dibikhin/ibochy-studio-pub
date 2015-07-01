@@ -124,9 +124,8 @@
             $(document).off('mouseup', '.button-handle');
             $(document).off('mousemove', '.button-handle');
         },
-        hoverMarkOn: function() { // todo rename hover to smth
+        hoverMarkOn: function() {
             $( document ).on( 'mouseenter', '.hover-mark', function() {
-                // $(this).addClass( 'hovered-highlight' ); // todo revove hovers?
                 $(this).find('.button-remove').show();
                 $(this).find('.button-replace-img').show();
                 $(this).find('.button-handle').show();
@@ -135,7 +134,6 @@
             });
 
             $( document ).on( 'mouseleave', '.hover-mark', function() {
-                // $(this).removeClass( 'hovered-highlight' );
 // todo call hide all before save
                 $(this).find('.button-remove').hide();
                 $(this).find('.button-replace-img').hide();
@@ -213,8 +211,8 @@
                     $( '.ui-state-highlight' )
                          .width( ui.item.width() )
                          .height( ui.item.height() );
-                        // .css( 'line-height', ui.item.height() + 'px' ); // kill me)))
-                        //.html('Бросить сюда');
+                        //// .css( 'line-height', ui.item.height() + 'px' ); // kill me)))
+                        ////.html('Бросить сюда');
                 },
                 stop: function() {
                     $(document).trigger('domChanged');
@@ -278,15 +276,10 @@
             $( document ).on( 'click', '.content-editable', function() {
                 $( this ).prop( 'contentEditable', true );
                 $( this ).focus();
-                //// $( '.hover-mark' ).removeClass( 'hovered-highlight' );
-                ////$( '.sortable' ).sortable({ disabled: true });
             });
 
             $( document ).on( 'blur', '.content-editable', function() {
                 $(document).trigger('domChanged');
-            //     //$( this ).prop( 'contentEditable', false );
-            //     // //$( this ).closest('.hover-mark').addClass( 'hovered-highlight' );
-            //     //$( '.sortable' ).sortable({ disabled: false });
             });
         },
         initUndoRedoAndDelete: function() {
@@ -339,8 +332,6 @@
 
                 var extractElement = function() {
                     var parent = buttonRemove.closest('.row');
-                    // // parent.removeClass('hovered-highlight');
-
                     // var prevId = parent.prev().attr('id');
                     var detachedElement = parent.detach();
                     // addElement({ prev: prevId, el: detachedElement });
@@ -378,7 +369,7 @@
                     $( '.ui-state-highlight' )
                         .width( $helper.width())
                         .height( $helper.height() )
-                        .css( 'line-height', $helper.height() + 'px' ); // kill me)))
+                        .css( 'line-height', $helper.height() + 'px' );
                 }
             });
         },
@@ -439,7 +430,6 @@
 };
 
 // todo warning: there's decls w/o var
-// todo liquidate dummy wrapping div over text block col
 // todo escape 'event' word
 
 // console.log();
