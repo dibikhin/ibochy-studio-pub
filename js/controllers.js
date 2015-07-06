@@ -5,6 +5,7 @@
     } else {
         firebase = new Firebase("https://ibochy-test.firebaseio.com");
     }
+    
     var editor = new Editor();
     
     var editorTabShow = function() {
@@ -82,6 +83,7 @@
             };
         }]);
 
+    // todo it's just rerun of Editor's funcs
     var resetEditor = function(editor) {
         editor.createRemoveButtons('#palette');
         editor.createReplaceButtons('#palette');
@@ -101,14 +103,11 @@
         
         editor.initContentEditable();
 
-        var undoManager = editor.initUndoRedoAndDelete();
-        editor.initSortable(undoManager);
+        editor.initButtonRemove();
+        editor.initSortable();
 
         editor.initDraggable();
         editor.initFileUpload();
-        
-        editor.paletteOff();
-        editor.paletteOn();
         
         editor.mapUrlKeyUpInit();
         
@@ -154,8 +153,8 @@
                     tupAt: Firebase.ServerValue.TIMESTAMP
                 });
                 $('#saving-status').removeClass('hidden');
-                $('#saving-status').fadeIn();
-                $('#saving-status').fadeOut(1500);
+                $('#saving-status').fadeIn(); // queue is true by default
+                $('#saving-status').fadeOut(1000);
             };
             
             $scope.$on('saveSite', saveSite);

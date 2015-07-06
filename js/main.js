@@ -6,9 +6,66 @@
     };
 
     var composeRandId = function() {
-        return '' + $.now() + '-' + getHardRandomInt() + '-' + getHardRandomInt();
+        return '' + $.now() + '-' + getHardRandomInt();
     };
 
+    var undos = [];
+    var redos = [];
+
+    var undoManager = new UndoManager();
+    
+    var toggle = function($el, pred) {
+        if(pred()) {
+            $el.removeAttr('disabled');
+        } else {
+            $el.attr('disabled', 'disabled');
+        }
+    };
+
+    var undoRedoOnOff = function() {
+        toggle($('.undo-button'), undoManager.hasUndo);
+        toggle($('.redo-button'), undoManager.hasRedo);
+    };
+
+    undoManager.setCallback(undoRedoOnOff);
+    
+    var undo = function() {
+        var prevSnapshot = undos.pop();
+        var curSnapshot = $('#canvas').html();
+        redos.push(curSnapshot);
+        $('#canvas').html(prevSnapshot);
+        $(document).trigger('domChanged'); // todo run in Q promise?
+    };
+    
+    var redo = function() {
+        var nextSnapshot = redos.pop();
+        var curSnapshot = $('#canvas').html();
+        undos.push(curSnapshot);
+        $('#canvas').html(nextSnapshot);
+        $(document).trigger('domChanged'); // todo run in Q promise?
+    };
+
+    var btnRemoveClick = function() {
+        redos = [];
+        undos.push($('#canvas').html());
+        
+        var $buttonRemove = $(this);
+        var $parent = $buttonRemove.closest('.row');
+        $parent.detach();
+        
+        $(document).trigger('domChanged');
+        
+        undoManager.add({ undo: undo, redo: redo });
+    };
+
+    // no need to off, it's outside canvas
+    $(document).on('click', '.undo-button', function() {
+        undoManager.undo();                
+    });
+    $(document).on('click', '.redo-button', function() {
+        undoManager.redo();                
+    });
+    
     // todo refactor duplicates & names in uploaders
 
     var attachFileUploader = function($fileUploadInput, $img) {
@@ -146,7 +203,7 @@
             $(document).off( 'mouseenter', '.hover-mark');
             $(document).off( 'mouseleave', '.hover-mark');
         },
-        initSortable: function(undoManager) {
+        initSortable: function() {
             var prevMoves = [];
             addPrevMove = function(id, prev_id) {
                 prevMoves.push({ id: id, prev_id: prev_id });
@@ -282,68 +339,9 @@
                 $(document).trigger('domChanged');
             });
         },
-        initUndoRedoAndDelete: function() {
-            var undoManager = new UndoManager();
-
-            var elements = [];
-            addElement = function(el) {
-                elements.push(el);
-            };
-            getElement = function() {
-                return elements.pop();
-            };
-
-            var toggle = function(el, pred) {
-                if(pred()) {
-                    el.removeAttr('disabled');
-                } else {
-                    el.attr('disabled', 'disabled');
-                }
-            };
-
-            var undoRedoOnOff = function() {
-                // toggle($('.undo-button'), undoManager.hasUndo);
-                // toggle($('.redo-button'), undoManager.hasRedo);
-            };
-
-            undoManager.setCallback(undoRedoOnOff);
-
-            // $('.undo-button').click(function () {
-            //     undoManager.undo();
-            //     $(this).blur();
-            // });
-
-            // $('.redo-button').click(function () {
-            //     undoManager.redo();
-            //     $(this).blur();
-            // });
-            
+        initButtonRemove: function() {
             $(document).off('click', '.button-remove');
-            
-            $( document ).on( 'click', '.button-remove', function() {
-                // var insertElement = function() {
-                //     var cont = getElement();
-                //     cont.el.insertAfter($('#' + cont.prev));
-                // };
-
-                var buttonRemove = $(this);
-                buttonRemove.hide();
-                $('.button-replace-img').hide();
-
-                var extractElement = function() {
-                    var parent = buttonRemove.closest('.row');
-                    // var prevId = parent.prev().attr('id');
-                    var detachedElement = parent.detach();
-                    // addElement({ prev: prevId, el: detachedElement });
-                    $(document).trigger('domChanged');
-                };
-
-                extractElement();
-
-                // undoManager.add({ undo: insertElement, redo: extractElement });
-            });
-
-            return undoManager;
+            $(document).on( 'click', '.button-remove', btnRemoveClick);
         },
         initDraggable: function() {
             $( '.draggable' ).draggable({
@@ -432,6 +430,7 @@
 // todo warning: there's decls w/o var
 // todo escape 'event' word
 
-// console.log();
+// Snapshot.log();
 // debugger
 // undefined
+// JSON.stringify
