@@ -9,7 +9,7 @@
         return '' + $.now() + '-' + getHardRandomInt();
     };
 
-    // todo extract class
+    // todo extract History class
     var undoStore = null,
         redoStore = null,
         undoManager = new UndoManager();
@@ -21,6 +21,10 @@
     };
 
     clearHistory();
+    
+    var clearRedoStore = function() {
+        redoStore = [];  
+    };
     
     var toggle = function($el, pred) {
         if(pred()) {
@@ -54,8 +58,9 @@
     };
 
     var btnRemoveClick = function() {
-        redoStore = [];
-        undoStore.push($('#canvas').html());
+        clearRedoStore();
+        var layout = $('#canvas').html();
+        undoStore.push(layout);
         
         var $buttonRemove = $(this);
         var $parent = $buttonRemove.closest('.row');
