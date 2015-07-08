@@ -430,7 +430,7 @@
 // todo warning: there's decls w/o var
 // todo escape 'event' word
 
-// Snapshot.log();
+// console.log();
 // debugger
 // undefined
 // JSON.stringify
