@@ -11,11 +11,11 @@
     user-select: none;
 }
 
-.giant-text {   /* ? */
+.giant-text {   /* index  */
     font-size: 40px; margin-top: 5px; color: grey;
 }
 
-.r-btn {    /* ? */
+.r-btn {    /* index */
     margin-left: 1px !important;
 }
 
@@ -44,7 +44,7 @@
     height: 100vh;
 }
 
-.ui-state-highlight { /* ? */
+.ui-state-highlight { /* main.js */
     background-color: white;
     border: 3px dashed lightseagreen;
 }
@@ -54,7 +54,7 @@
     border: 3px dashed lightseagreen;
 }
 
-.hidden-el {    /* ? */
+.hidden-el {    /* main & index */
     display: none;
 }
 
@@ -120,12 +120,12 @@
     min-height: 500px;
 }
 
-.block-img {    /* ? */
+.block-img {    /* index */
     margin-top: 25px;
     max-width: 100%;
 }
 
-.map-panel {    /* ? */
+.map-panel {    /* index & main */
   display: none;
   position: absolute;
   top: 20%;
@@ -134,7 +134,7 @@
   margin: auto;
 }
 
-.video-panel {  /* ? */
+.video-panel {  /* index  & main */
   display: none;
   width: 50%;
   margin: auto;
