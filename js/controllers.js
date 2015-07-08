@@ -8,6 +8,8 @@
     
     var editor = new Editor();
     
+    editor.paletteOn();
+    
     var editorTabShow = function() {
         $('#tabs a[href="#editor"]').tab('show');
     };
@@ -82,9 +84,10 @@
                 $('#login-btn').removeAttr('disabled');
                 editorTabShow();
                 $rootScope.$broadcast('clearSites', {});
+                $rootScope.$broadcast('logout', {});
                 $scope.showControls();
                 $('#save-site-btn').attr('disabled', 'disabled');
-                // todo load "Demo site"
+                // todo clear undo-redo
             };
         }]);
 
@@ -137,8 +140,13 @@
                 // todo off while on 'My Sites'
             };
             
-            bindLayout('_0022');
-            editorTabShow();
+            var bindDemoLayout = function(event, args) {
+                bindLayout('_0022');
+                editorTabShow();
+                $scope.$parent.siteName = null;
+            };
+            
+            bindDemoLayout();
 
             $scope.$on('openInEditor', function(event, site) {
                 if (currentLayoutRef) { 
@@ -146,9 +154,13 @@
                 }
                 bindLayout(site.layout_id);
                 editorTabShow();
+                editor.paletteOn();
                 $scope.$parent.siteName = site.name; // todo stale after editing name
                 $('#save-site-btn').removeAttr('disabled');
+                // todo clear undo-redo here too
             });
+            
+            $scope.$on('logout', bindDemoLayout);
             
             var saveSite = function() {
                 var site = firebase.child('layouts/' + $scope.layoutId);
