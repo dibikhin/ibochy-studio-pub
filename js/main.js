@@ -9,10 +9,17 @@
         return '' + $.now() + '-' + getHardRandomInt();
     };
 
-    var undos = [];
-    var redos = [];
+    var undoStore = null,
+        redoStore = null,
+        undoManager = new UndoManager();
+    
+    var clearHistory = function() {
+        undoStore = [];
+        redoStore = [];
+        undoManager.clear();
+    };
 
-    var undoManager = new UndoManager();
+    clearHistory();
     
     var toggle = function($el, pred) {
         if(pred()) {
@@ -30,24 +37,24 @@
     undoManager.setCallback(undoRedoOnOff);
     
     var undo = function() {
-        var prevSnapshot = undos.pop();
+        var prevSnapshot = undoStore.pop();
         var curSnapshot = $('#canvas').html();
-        redos.push(curSnapshot);
+        redoStore.push(curSnapshot);
         $('#canvas').html(prevSnapshot);
         $(document).trigger('domChanged'); // todo run in Q promise?
     };
     
     var redo = function() {
-        var nextSnapshot = redos.pop();
+        var nextSnapshot = redoStore.pop();
         var curSnapshot = $('#canvas').html();
-        undos.push(curSnapshot);
+        undoStore.push(curSnapshot);
         $('#canvas').html(nextSnapshot);
         $(document).trigger('domChanged'); // todo run in Q promise?
     };
 
     var btnRemoveClick = function() {
-        redos = [];
-        undos.push($('#canvas').html());
+        redoStore = [];
+        undoStore.push($('#canvas').html());
         
         var $buttonRemove = $(this);
         var $parent = $buttonRemove.closest('.row');
@@ -136,6 +143,7 @@
     };
 
     return {
+        clearHistory: clearHistory,
         createRemoveButtons: function(context) {
             $('.button-remove-wrap', context).html(
                 '<label class="btn btn-danger button-remove">Удалить</label>');

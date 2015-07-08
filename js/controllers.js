@@ -152,7 +152,7 @@
                 editor.paletteOn();
                 $scope.$parent.siteName = site.name; // todo stale after editing name
                 $('#save-site-btn').removeAttr('disabled');
-                // todo clear undo-redo here too
+                editor.clearHistory();
             });
             
             $scope.$on('logout', bindDemoLayout);
