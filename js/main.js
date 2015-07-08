@@ -91,7 +91,6 @@
         var embedImg = function(e) {
             // background-image: url(data:image/png; base64, iVBORw0...);
             $('#pseudo-body').css('background-image', 'url(' + e.target.result + ')');
-            $('#pseudo-body').css('background-repeat', 'no-repeat');
             $(document).trigger('domChanged');
         };
         

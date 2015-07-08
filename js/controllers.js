@@ -149,6 +149,7 @@
                 }
                 bindLayout(site.layout_id);
                 editorTabShow();
+                editor.paletteOn();
                 $scope.$parent.siteName = site.name; // todo stale after editing name
                 $('#save-site-btn').removeAttr('disabled');
                 // todo clear undo-redo here too
