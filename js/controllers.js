@@ -135,7 +135,7 @@
                 // todo off while on 'My Sites'
             };
             
-            var bindDemoLayout = function(event, args) {
+            var bindDemoLayout = function(e, args) {
                 bindLayout('_0022');
                 editorTabShow();
                 $scope.$parent.siteName = null;
@@ -143,7 +143,7 @@
             
             bindDemoLayout();
 
-            $scope.$on('openInEditor', function(event, site) {
+            $scope.$on('openInEditor', function(e, site) {
                 if (currentLayoutRef) { 
                     currentLayoutRef.off('value');
                 }
@@ -221,11 +221,11 @@
                  $scope.sites = $firebaseArray(sites);
              };
 
-            $scope.$on('bindSites', function(event, args) {
+            $scope.$on('bindSites', function(e, args) {
                 bindSites();
             });
 
-            $scope.$on('clearSites', function(event, args) {
+            $scope.$on('clearSites', function(e, args) {
                 $scope.sites = null;
             });
 

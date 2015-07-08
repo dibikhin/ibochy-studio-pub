@@ -9,6 +9,7 @@
         return '' + $.now() + '-' + getHardRandomInt();
     };
 
+    // todo extract class
     var undoStore = null,
         redoStore = null,
         undoManager = new UndoManager();
@@ -260,7 +261,7 @@
                 cancel: '.button-remove,.button-replace-img,.map-url,.video-url',
                 placeholder: 'ui-state-highlight',
                 tolerance:   'pointer',
-                start: function( event, ui ) {
+                start: function( e, ui ) {
                     var $itemId = $( ui.item ).attr('id');
                     if ($itemId === undefined) {
                         tempItemId = composeRandId();
@@ -281,7 +282,7 @@
                 stop: function() {
                     $(document).trigger('domChanged');
                 },
-                update: function(event, ui) {
+                update: function(e, ui) {
                     // new block has no prev id but it has own undoManager.add call
                     if (tempItemId === null || tempPrevItemId === null)
                         return;
@@ -290,7 +291,7 @@
                     
                     // should not fire domChanged here, 'cause "stop" fires it
                 },
-                receive : function(event, ui) {
+                receive : function(e, ui) {
                     var droppedEl = $(this).data().uiSortable.currentItem;
 
                     droppedEl.children('.dummy').remove();
@@ -434,8 +435,8 @@
     };
 };
 
-// todo warning: there's decls w/o var
-// todo escape 'event' word
+// escape 'event' word
+// todo lint it
 
 // console.log();
 // debugger
