@@ -134,15 +134,15 @@
                     function(data) {
                         $('#canvas').html(data.val().doc); // it's layout.doc
                         resetEditor(editor);
-                        $('#editorControls').show();
-                        $('#palette').show();
+                        // $('#editorControls').show();
+                        // $('#palette').show();
                     });
                 // todo off while on 'My Sites'
             };
             
             var bindDemoLayout = function(event, args) {
                 bindLayout('_0022');
-                editorTabShow();
+                // editorTabShow();
                 $scope.$parent.siteName = null;
             };
             
@@ -154,6 +154,7 @@
                 }
                 bindLayout(site.layout_id);
                 editorTabShow();
+                // $scope.showControls();
                 editor.paletteOn();
                 $scope.$parent.siteName = site.name; // todo stale after editing name
                 $('#save-site-btn').removeAttr('disabled');
