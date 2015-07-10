@@ -13,6 +13,9 @@
     var editorTabShow = function() {
         $('#tabs a[href="#editor"]').tab('show');
     };
+     var mySitesTabShow = function(){
+        $('#tabs a[href="#mysites"]').tab('show');
+    };
     
     var ibochyStudio = angular.module('ibochyStudio', ["firebase"]);
 
@@ -21,22 +24,31 @@
         function($rootScope, $scope, $firebaseAuth, $firebaseArray, $timeout) {
             $scope.auth = $firebaseAuth(firebase);
             $scope.siteName = null; // todo dirty
+            $scope.hideControls = function() {
+                editor.paletteOff();
+                $('#editorControls').hide();
+                $('#palette').hide();
+
+                // todo editor off while 'My sites' is active
+            };
 
             $scope.authData = $scope.auth.$getAuth();
             if ($scope.authData) {
                 $scope.staff = {}; // staff is author
                 $scope.staff.email = $scope.authData.password.email;
-                editorTabShow();
                 $timeout(function() {
                     $rootScope.$broadcast('bindSites', {}); // dirty, but works only
+                    $scope.hideControls();
+                    mySitesTabShow();
+                    
                 });
             }
-
-            $scope.auth.$onAuth(function(authData) {
+            
+                $scope.auth.$onAuth(function(authData) {
                 $scope.authData = authData;
             });
 
-            $scope.loginStaff = function(staff) {
+             $scope.loginStaff = function(staff) {
                 $('#login-btn').attr('disabled', 'disabled'); //todo ng-dis
                     // todo show progress
                 $scope.auth.$authWithPassword({
@@ -45,7 +57,8 @@
                 }).then(function(authData) {
                     $scope.staff.password = '';
                     $rootScope.$broadcast('bindSites', {});
-                    editorTabShow();
+                    $scope.hideControls();
+                    mySitesTabShow();
                     var author = firebase.child('authors/' + authData.uid);
                     author.update({
                         last_seen_at: Firebase.ServerValue.TIMESTAMP
@@ -54,14 +67,6 @@
                     alert("Login Failed!", error);
                     $('#login-btn').removeAttr('disabled');
                 });
-            };
-
-            $scope.hideControls = function() {
-                editor.paletteOff();
-                $('#editorControls').hide();
-                $('#palette').hide();
-
-                // todo editor off while 'My sites' is active
             };
 
             $scope.showControls = function() {
@@ -129,15 +134,15 @@
                     function(data) {
                         $('#canvas').html(data.val().doc); // it's layout.doc
                         resetEditor(editor);
-                        $('#editorControls').show();
-                        $('#palette').show();
+                        // $('#editorControls').show();
+                        // $('#palette').show();
                     });
                 // todo off while on 'My Sites'
             };
             
             var bindDemoLayout = function(e, args) {
                 bindLayout('_0022');
-                editorTabShow();
+                // editorTabShow();
                 $scope.$parent.siteName = null;
             };
             
@@ -149,6 +154,7 @@
                 }
                 bindLayout(site.layout_id);
                 editorTabShow();
+                // $scope.showControls();
                 editor.paletteOn();
                 $scope.$parent.siteName = site.name; // todo stale after editing name
                 $('#save-site-btn').removeAttr('disabled');
