@@ -9,10 +9,29 @@
         return '' + $.now() + '-' + getHardRandomInt();
     };
 
-    var undos = [];
-    var redos = [];
+    // todo extract History class
+    var undoStore = null,
+        redoStore = null,
+        undoManager = new UndoManager();
+    
+    var clearHistory = function() {
+        undoStore = [];
+        redoStore = [];
+        undoManager.clear();
+    };
 
-    var undoManager = new UndoManager();
+    clearHistory();
+    
+    var createHistoryPoint = function() {
+        var layout = $('#canvas').html();
+        undoStore.push(layout);
+        clearRedoStore();
+        undoManager.add({ undo: undo, redo: redo });
+    };
+    
+    var clearRedoStore = function() {
+        redoStore = [];  
+    };
     
     var toggle = function($el, pred) {
         if(pred()) {
@@ -30,41 +49,36 @@
     undoManager.setCallback(undoRedoOnOff);
     
     var undo = function() {
-        var prevSnapshot = undos.pop();
+        var prevSnapshot = undoStore.pop();
         var curSnapshot = $('#canvas').html();
-        redos.push(curSnapshot);
+        redoStore.push(curSnapshot);
         $('#canvas').html(prevSnapshot);
+        
         $(document).trigger('domChanged'); // todo run in Q promise?
     };
     
     var redo = function() {
-        var nextSnapshot = redos.pop();
+        var nextSnapshot = redoStore.pop();
         var curSnapshot = $('#canvas').html();
-        undos.push(curSnapshot);
+        undoStore.push(curSnapshot);
         $('#canvas').html(nextSnapshot);
+        
         $(document).trigger('domChanged'); // todo run in Q promise?
     };
 
     var btnRemoveClick = function() {
-        redos = [];
-        undos.push($('#canvas').html());
+        createHistoryPoint();
         
         var $buttonRemove = $(this);
         var $parent = $buttonRemove.closest('.row');
         $parent.detach();
         
         $(document).trigger('domChanged');
-        
-        undoManager.add({ undo: undo, redo: redo });
     };
 
     // no need to off, it's outside canvas
-    $(document).on('click', '.undo-button', function() {
-        undoManager.undo();                
-    });
-    $(document).on('click', '.redo-button', function() {
-        undoManager.redo();                
-    });
+    $(document).on('click', '.undo-button', undoManager.undo);
+    $(document).on('click', '.redo-button', undoManager.redo);
     
     // todo refactor duplicates & names in uploaders
 
@@ -136,6 +150,7 @@
     };
 
     return {
+        clearHistory: clearHistory,
         createRemoveButtons: function(context) {
             $('.button-remove-wrap', context).html(
                 '<label class="btn btn-danger button-remove">Удалить</label>');
@@ -162,9 +177,8 @@
         },
         handleButtonsOn: function() {
             $(document).on('mousedown', '.button-handle', function() {
-                $(this).text('Двигай');
-                $(this).closest('.hover-mark').addClass('seize-highlight');
-                $(document).on('mousemove', '.button-handle', function() {
+                createHistoryPoint();
+                $(document).one('mousemove', '.button-handle', function() { // note "one" here
                     $(this).text('Отпусти');
                 });
             });
@@ -172,7 +186,6 @@
             $(document).on('mouseup', '.button-handle', function() {
                 $(this).text('Схватить');
                 $(this).closest('.hover-mark').removeClass('seize-highlight');
-                $(document).off('mousemove', '.button-handle');
             });
         },
         handleButtonsOff: function() {
@@ -203,47 +216,6 @@
             $(document).off( 'mouseleave', '.hover-mark');
         },
         initSortable: function() {
-            var prevMoves = [];
-            addPrevMove = function(id, prev_id) {
-                prevMoves.push({ id: id, prev_id: prev_id });
-            };
-
-            getPrevMove = function() {
-                return prevMoves.pop();
-            };
-
-            var nextMoves = [];
-            addNextMove = function(id, prev_id) {
-                nextMoves.push({ id: id, prev_id: prev_id });
-            };
-            getNextMove = function() {
-                return nextMoves.pop();
-            };
-
-            var moveToPrev = function() {
-                var zxcv1 = getPrevMove();
-                var el = $('#' + zxcv1.id);
-                var prev = el.prev();
-                var detachedEl = el.detach();
-
-                // prev_id === null ?
-                detachedEl.insertAfter($('#' + zxcv1.prev_id));
-                addNextMove(zxcv1.id, prev.attr('id'));
-            };
-
-            var moveToNext = function() {
-                var asdf = getNextMove();
-                var el = $('#' + asdf.id);
-                var prev = el.prev();
-                var detachedEl = el.detach();
-
-                detachedEl.insertAfter($('#' + asdf.prev_id));
-                addPrevMove(asdf.id, prev.attr('id'));
-            };
-
-            var tempItemId = null;      // global state is evil
-            var tempPrevItemId = null;
-
             $( '.sortable' ).sortable({
                 //delay: 150, for touch punch
                 scroll: true,
@@ -252,48 +224,27 @@
                 cancel: '.button-remove,.button-replace-img,.map-url,.video-url',
                 placeholder: 'ui-state-highlight',
                 tolerance:   'pointer',
-                start: function( event, ui ) {
-                    var $itemId = $( ui.item ).attr('id');
-                    if ($itemId === undefined) {
-                        tempItemId = composeRandId();
-                        tempPrevItemId = null;
-                    } else {
-                        tempItemId =  $itemId;
-                        tempPrevItemId = $( ui.item ).prev().attr('id');
-                    }
-
+                start: function( e, ui ) {
                     $(ui.item).closest('.hover-mark').removeClass('seize-highlight');
 
                     $( '.ui-state-highlight' )
                          .width( ui.item.width() )
                          .height( ui.item.height() );
-                        //// .css( 'line-height', ui.item.height() + 'px' ); // kill me)))
-                        ////.html('Бросить сюда');
                 },
                 stop: function() {
-                    $(document).trigger('domChanged');
-                },
-                update: function(event, ui) {
-                    // new block has no prev id but it has own undoManager.add call
-                    if (tempItemId === null || tempPrevItemId === null)
-                        return;
-                    // addPrevMove(tempItemId, tempPrevItemId);
-                    // undoManager.add({undo: moveToPrev, redo: moveToNext });
                     
+                },
+                update: function(e, ui) {
+                    $(document).trigger('domChanged');
                     // should not fire domChanged here, 'cause "stop" fires it
                 },
-                receive : function(event, ui) {
+                receive : function(e, ui) {
                     var droppedEl = $(this).data().uiSortable.currentItem;
 
                     droppedEl.children('.dummy').remove();
 
                     var $block = droppedEl.children().first(); // row
                     $block.removeClass( 'hidden-el' );
-
-                    var $blockId = $block.attr('id');
-                    if($blockId === undefined || $blockId === '') {
-                        $block.attr('id', composeRandId());
-                    }
 
                     buildImgUploaders($('.item', $block)); // todo lol item:)
 
@@ -304,23 +255,8 @@
                     $('.carousel ol li', $block).attr('data-target', '#' + carouselId);
                     $('.carousel a', $block).attr('href', '#' + carouselId);
                     
-                    // todo remove copypaste
-                    // var insertElement = function() {
-                    //     var cont = getElement();
-                    //     cont.el.insertAfter($('#' + cont.prev));
-                    // };
-
-                    // var extractElement = function() {
-                    //     var prevId = $block.prev().attr('id');
-                    //     var detachedEl = $block.detach();
-                    //     addElement({ prev: prevId, el: detachedEl });
-                    //     $(document).trigger('domChanged');
-                    // };
-                    
                     // should not fire 'domChanged' here too, 'cause "stop" fires it
                     
-                    // undoManager.add({ undo: extractElement, redo: insertElement });
-
                     return true;
                 }
             });
@@ -350,7 +286,6 @@
                 revertDuration: 50,
                 start: function(ev, ui) {
                     var $helper = $( ui.helper );
-                    // todo remove copypaste
                     $helper.removeClass('btn btn-default');
                     $helper.children('.dummy').remove();
                     $helper.children().removeClass( 'hidden-el' );
@@ -358,7 +293,6 @@
                     $helper
                         .width( $('.container.sortable').width() )
                         .height( $helper.children('.row.hover-mark').height() );
-                    // copypaste ends
                 },
                 drag: function(ev, ui) {
                     var $helper = $('.ui-draggable-dragging');
@@ -426,8 +360,8 @@
     };
 };
 
-// todo warning: there's decls w/o var
-// todo escape 'event' word
+// escape 'event' word
+// todo lint it
 
 // console.log();
 // debugger
